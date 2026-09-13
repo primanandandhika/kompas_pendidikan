@@ -1,11 +1,12 @@
 import supabase from "@/lib/supabase"
 import Link from "next/link"
 
-export default async function BeasiswaPage({ searchParams }: { searchParams: { jenjang?: string }}) {
+export default async function BeasiswaPage({ searchParams }: { searchParams: Promise<{ jenjang?: string }> }) {
+    const params = await searchParams
     let query = supabase.from("scholarships").select("*")
 
-    if (searchParams.jenjang) {
-        query = query.eq("education_level", searchParams.jenjang)
+    if (params.jenjang) {
+        query = query.eq("education_level", params.jenjang)
     }
 
     const { data: scholarships, error } = await query
@@ -23,7 +24,7 @@ export default async function BeasiswaPage({ searchParams }: { searchParams: { j
             <h1 className="text-2xl font-bold mb-4">Daftar Beasiswa</h1>
 
             <form className="mb-4 gap-3 flex" method="GET">
-                <select name="jenjang" defaultValue={searchParams.jenjang || ''} className="px-4 py-2 border rounded cursor-pointer">
+                <select name="jenjang" defaultValue={params.jenjang || ''} className="px-4 py-2 border rounded cursor-pointer">
                     <option value="" className="px-4 py-2 bg-blue-500 text-white rounded">Semua</option>
                     <option value="SMA" className="px-4 py-2 bg-blue-500 text-white rounded">SMA</option>
                     <option value="Kuliah" className="px-4 py-2 bg-blue-500 text-white rounded">Kuliah</option>
