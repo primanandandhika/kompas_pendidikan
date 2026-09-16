@@ -1,44 +1,94 @@
-import supabase from "@/lib/supabase"
-import Link from "next/link"
+import Link from 'next/link'
+import supabase from '@/lib/supabase'
 
-export default async function BeasiswaPage({ searchParams }: { searchParams: Promise<{ jenjang?: string }> }) {
-    const params = await searchParams
-    let query = supabase.from("scholarships").select("*")
+interface Scholarship {
+  id: number
+  name: string
+  description: string
+  requirements: string
+  registration_link: string
+  education_level: string
+}
 
-    if (params.jenjang) {
-        query = query.eq("education_level", params.jenjang)
-    }
+export default async function BeasiswaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ jenjang?: string }>
+}) {
+  const params = await searchParams
+  let query = supabase.from('scholarships').select('*')
 
-    const { data: scholarships, error } = await query
+  if (params.jenjang) {
+    query = query.eq('education_level', params.jenjang)
+  }
 
-    if (error) {
-        console.error(error)
-        return <div>Error : {error.message}</div>
-    }
+  const { data: scholarships, error } = await query.returns<Scholarship[]>()
 
-    return (
-        <section className="p-8">
-            <Link href="/" className="text-blue-500 mb-4 inline-block">
-                Kembali
+  if (error) {
+    return <p className="p-6 text-error">Error: {error.message}</p>
+  }
+
+  const jenjangOptions = [
+    { value: '', label: 'Semua Jenjang' },
+    { value: 'SMA', label: 'SMA' },
+    { value: 'Kuliah', label: 'Kuliah' },
+  ]
+
+  return (
+    <section className="mx-auto max-w-4xl px-4 py-10 md:px-6 md:py-14">
+      <h1 className="font-headline-sm text-headline-sm text-on-surface md:font-headline-lg md:text-headline-lg">
+        Daftar Beasiswa
+      </h1>
+      <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
+        Cari beasiswa yang sesuai jenjang pendidikanmu.
+      </p>
+
+      <form className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <label htmlFor="jenjang" className="sr-only">
+          Filter jenjang
+        </label>
+        <select
+          id="jenjang"
+          name="jenjang"
+          defaultValue={params.jenjang || ''}
+          className="cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
+        >
+          {jenjangOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="cursor-pointer rounded-xl bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary shadow-sm transition-colors duration-200 hover:bg-primary-container"
+        >
+          Cari
+        </button>
+      </form>
+
+      <ul className="mt-8 space-y-4">
+        {scholarships?.map((item) => (
+          <li key={item.id}>
+            <Link
+              href={`/beasiswa/${item.id}`}
+              className="group block cursor-pointer rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md"
+            >
+              <h2 className="font-title-md text-title-md text-on-surface transition-colors group-hover:text-primary">
+                {item.name}
+              </h2>
+              <p className="mt-1 font-body-md text-body-md text-on-surface-variant">{item.description}</p>
+              <p className="mt-2 font-body-sm text-body-sm text-outline">Syarat: {item.requirements}</p>
             </Link>
-            <h1 className="text-2xl font-bold mb-4">Daftar Beasiswa</h1>
+          </li>
+        ))}
+      </ul>
 
-            <form className="mb-4 gap-3 flex" method="GET">
-                <select name="jenjang" defaultValue={params.jenjang || ''} className="px-4 py-2 border rounded cursor-pointer">
-                    <option value="" className="px-4 py-2 bg-blue-500 text-white rounded">Semua</option>
-                    <option value="SMA" className="px-4 py-2 bg-blue-500 text-white rounded">SMA</option>
-                    <option value="Kuliah" className="px-4 py-2 bg-blue-500 text-white rounded">Kuliah</option>
-                </select>
-                <button type="submit" className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded">Cari</button>
-            </form>
-
-            {scholarships.map(item => (
-                <Link key={item.id} href={`/beasiswa/${item.id}`} className="block border p-4 mb-4 rounded hover:bg-gray-800">
-                    <h2 className="text-xl font-semibold">{item.name}</h2>
-                    <p>Deskripsi: {item.description}</p>
-                    <p>Jenjang: {item.requirements}</p>
-                </Link>
-            ))}
-        </section>
-    )
+      {scholarships?.length === 0 && (
+        <p className="mt-8 font-body-md text-body-md text-on-surface-variant">
+          Belum ada beasiswa untuk jenjang ini.
+        </p>
+      )}
+    </section>
+  )
 }
