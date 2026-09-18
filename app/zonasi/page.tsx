@@ -1,21 +1,36 @@
 export default function ZonasiPage() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Simulasi Zonasi PPDB</h1>
-      <form action="/zonasi/hasil" method="get">
-        <label className="block mb-2">
-          Masukin alamat kamu:
+    <section className="mx-auto max-w-2xl px-4 py-10 md:px-6 md:py-14">
+      <h1 className="font-headline-sm text-headline-sm text-on-surface md:font-headline-lg md:text-headline-lg">
+        Simulasi Zonasi PPDB
+      </h1>
+      <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
+        Masukin alamat kamu untuk melihat estimasi peluang diterima di sekolah-sekolah zonasi terdekat.
+      </p>
+
+      <form action="/zonasi/hasil" method="get" className="mt-8 space-y-4">
+        <div>
+          <label htmlFor="alamat" className="mb-1.5 block font-label-lg text-label-lg text-on-surface">
+            Alamat Kamu
+          </label>
           <input
+            id="alamat"
             type="text"
             name="alamat"
-            placeholder="Contoh: Jl. Pahlawan, Purworejo"
-            className="border p-2 w-full mt-1"
+            placeholder="Contoh: Alun-alun Purworejo"
+            required
+            className="w-full rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
-        </label>
-        <button type="submit" className="mt-4 bg-blue-500 text-white p-2 rounded">
+        </div>
+
+        <button
+          type="submit"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-6 py-3 font-label-lg text-label-lg text-on-primary shadow-sm transition-all duration-200 hover:bg-primary-container hover:shadow-md"
+        >
           Cek Peluang
+          <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
         </button>
       </form>
-    </div>
+    </section>
   )
 }

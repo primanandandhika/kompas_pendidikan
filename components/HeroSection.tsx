@@ -7,7 +7,7 @@ export default function HeroSection() {
         <span className="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3.5 py-1.5 text-primary">
           <span className="h-2 w-2 rounded-full bg-primary" />
           <span className="font-label-md text-label-md font-semibold uppercase tracking-wide">
-            Navigasi Pendidikan Terpadu
+            Web Navigasi Pendidikan
           </span>
         </span>
 
@@ -19,7 +19,7 @@ export default function HeroSection() {
         </h1>
 
         <p className="mt-4 font-body-md text-body-md text-on-surface-variant md:font-body-lg md:text-body-lg">
-          Navigasi lengkap untuk menemukan beasiswa, simulasi zonasi PPDB, hingga kalkulator peluang lolos jurusan impianmu.
+          Navigasi lengkap untuk menemukan beasiswa, simulasi zonasi PPDB, hingga kalkulator peluang lolos jurusan impian.
         </p>
 
         <div className="mt-8 flex justify-center">

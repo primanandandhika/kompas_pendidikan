@@ -10,7 +10,7 @@ export default function FeaturesSection() {
             Empat Layanan Utama
           </span>
           <h2 className="font-headline-sm text-headline-sm text-on-surface md:font-headline-lg md:text-headline-lg">
-            Pilih Layanan untuk Memulai
+            Pilih Layanan
           </h2>
         </div>
 
