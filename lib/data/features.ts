@@ -62,7 +62,7 @@ export const features: Feature[] = [
     icon: 'calculate',
     badge: 'Jalur SNBT',
     title: 'Kalkulator Peluang Jurusan',
-    description: 'Bandingkan perkiraan skor UTBK kamu dengan data historis beberapa universitas untuk jurusan Informatika.',
+    description: 'Bandingkan perkiraan skor UTBK kamu dengan data historis beberapa universitas.',
     footer: 'Contoh: Informatika',
     iconBg: 'bg-surface-variant',
     iconText: 'text-primary',
