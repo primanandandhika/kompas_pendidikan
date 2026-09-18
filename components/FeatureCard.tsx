@@ -32,7 +32,6 @@ export default function FeatureCard({ feature }: { feature: Feature }) {
           Buka
           <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
         </Link>
-        <span className="font-body-sm text-body-sm text-outline">{feature.footer}</span>
       </div>
     </article>
   )

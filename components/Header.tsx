@@ -15,12 +15,14 @@ export default function Header() {
   ]
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-surface/90 backdrop-blur-xl shadow-sm">
+    <header className="fixed top-0 inset-x-0 z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/40 shadow-sm">
       <div className="h-16 md:h-20 max-w-7xl mx-auto px-4 md:px-6 lg:px-12 flex items-center justify-between">
-        <Link href="/" className="font-headline-sm text-headline-sm text-primary tracking-tight">
-          Kompas Pendidikan
+        <Link href="/" className="flex items-center gap-2 cursor-pointer">
+          <img src="/logo.svg" alt="" className="h-8 w-8 rounded-lg" />
+          <span className="font-headline-sm text-headline-sm text-primary tracking-tight">
+            Kompas Pendidikan
+          </span>
         </Link>
-
         <nav aria-label="Navigasi utama" className="hidden lg:block">
           <ul className="flex items-center gap-6">
             {navItems.map((item) => (

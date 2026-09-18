@@ -13,14 +13,22 @@ interface Scholarship {
 export default async function BeasiswaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ jenjang?: string }>
+  searchParams: Promise<{ jenjang?: string; q?: string; sort?: string }>
 }) {
   const params = await searchParams
+  const sort = params.sort === 'desc' ? 'desc' : 'asc'
+
   let query = supabase.from('scholarships').select('*')
 
   if (params.jenjang) {
     query = query.eq('education_level', params.jenjang)
   }
+
+  if (params.q) {
+    query = query.ilike('name', `%${params.q}%`)
+  }
+
+  query = query.order('name', { ascending: sort === 'asc' })
 
   const { data: scholarships, error } = await query.returns<Scholarship[]>()
 
@@ -43,7 +51,19 @@ export default async function BeasiswaPage({
         Cari beasiswa yang sesuai jenjang pendidikanmu.
       </p>
 
-      <form className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <form className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
+        <label htmlFor="q" className="sr-only">
+          Cari beasiswa
+        </label>
+        <input
+          id="q"
+          type="text"
+          name="q"
+          defaultValue={params.q || ''}
+          placeholder="Cari nama beasiswa..."
+          className="flex-1 rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
+        />
+
         <label htmlFor="jenjang" className="sr-only">
           Filter jenjang
         </label>
@@ -59,6 +79,20 @@ export default async function BeasiswaPage({
             </option>
           ))}
         </select>
+
+        <label htmlFor="sort" className="sr-only">
+          Urutkan
+        </label>
+        <select
+          id="sort"
+          name="sort"
+          defaultValue={sort}
+          className="cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
+        >
+          <option value="asc">Nama A-Z</option>
+          <option value="desc">Nama Z-A</option>
+        </select>
+
         <button
           type="submit"
           className="cursor-pointer rounded-xl bg-primary px-5 py-2.5 font-label-lg text-label-lg text-on-primary shadow-sm transition-colors duration-200 hover:bg-primary-container"
@@ -86,7 +120,7 @@ export default async function BeasiswaPage({
 
       {scholarships?.length === 0 && (
         <p className="mt-8 font-body-md text-body-md text-on-surface-variant">
-          Belum ada beasiswa untuk jenjang ini.
+          Tidak ada beasiswa yang cocok dengan pencarianmu.
         </p>
       )}
     </section>

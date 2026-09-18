@@ -23,12 +23,12 @@ export default async function JurusanHasilPage({
   }
 
   const ranked = majors
-    ?.map((major) => {
-      const matchCount = selected.filter((trait) => major.traits.toLowerCase().includes(trait.toLowerCase())).length
-      return { ...major, matchCount }
-    })
-    .filter((major) => major.matchCount > 0)
-    .sort((a, b) => b.matchCount - a.matchCount)
+  ?.map((major) => {
+    const matchedTraits = selected.filter((trait) => major.traits.toLowerCase().includes(trait.toLowerCase()))
+    return { ...major, matchCount: matchedTraits.length, matchedTraits }
+  })
+  .filter((major) => major.matchCount > 0)
+  .sort((a, b) => b.matchCount - a.matchCount)
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-10 md:px-6 md:py-14">
@@ -52,6 +52,16 @@ export default async function JurusanHasilPage({
           >
             <h2 className="font-title-md text-title-md text-on-surface">{major.name}</h2>
             <p className="mt-1 font-body-md text-body-md text-on-surface-variant">{major.description}</p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {major.matchedTraits.map((trait) => (
+                <span
+                  key={trait}
+                  className="rounded-full bg-tertiary-fixed px-2.5 py-1 font-label-sm text-label-sm capitalize text-on-tertiary-fixed"
+                >
+                  {trait}
+                </span>
+              ))}
+            </div>
           </li>
         ))}
       </ul>
