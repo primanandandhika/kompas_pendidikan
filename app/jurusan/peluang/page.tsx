@@ -24,7 +24,6 @@ export default async function PeluangJurusanPage() {
             required
             className="w-full cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
           >
-            <option value="">-- Pilih Jurusan --</option>
             <option value="__all__">Semua Jurusan</option>
             {categories.map((cat) => (
               <option key={cat} value={cat}>
