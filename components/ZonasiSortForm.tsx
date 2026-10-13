@@ -30,6 +30,7 @@ export default function ZonasiSortForm({
         onChange={(e) => e.currentTarget.form?.requestSubmit()}
         className="cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
       >
+        <option value="rayon">Dalam rayon dulu</option>
         <option value="jarak-asc">Jarak: Terdekat</option>
         <option value="jarak-desc">Jarak: Terjauh</option>
         <option value="kuota-desc">Kuota: Terbanyak</option>

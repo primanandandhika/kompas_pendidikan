@@ -7,7 +7,7 @@ export default function FeaturesSection() {
       <div className="mx-auto max-w-7xl space-y-8 md:space-y-12">
         <div className="max-w-2xl space-y-2">
           <span className="font-label-md text-label-md font-bold uppercase tracking-widest text-primary">
-            Empat Layanan Utama
+            Lima Layanan Utama
           </span>
           <h2 className="font-headline-sm text-headline-sm text-on-surface md:font-headline-lg md:text-headline-lg">
             Pilih Layanan

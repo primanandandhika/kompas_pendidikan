@@ -3,9 +3,10 @@ import Link from 'next/link'
 export default function Footer() {
   const toolLinks = [
     { href: '/jurusan/peluang', label: 'Kalkulator Peluang Jurusan' },
-    { href: '/zonasi', label: 'Simulasi Zonasi PPDB' },
+    { href: '/zonasi', label: 'Simulasi SPMB' },
     { href: '/jurusan', label: 'Tes Minat & Bakat Jurusan' },
     { href: '/beasiswa', label: 'Pencocokan Beasiswa' },
+    { href: '/jalur', label: 'Jalur Masuk Kuliah' }
   ]
 
   return (

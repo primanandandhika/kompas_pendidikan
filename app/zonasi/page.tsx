@@ -9,7 +9,7 @@ export default function ZonasiPage() {
   return (
     <section className="mx-auto max-w-2xl px-4 py-10 md:px-6 md:py-14">
       <h1 className="font-headline-sm text-headline-sm text-on-surface md:font-headline-lg md:text-headline-lg">
-        Simulasi Zonasi PPDB
+        Simulasi SPMB (Jalur Domisili)
       </h1>
       <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
         Pilih jenjang, cari alamat atau klik langsung di peta.

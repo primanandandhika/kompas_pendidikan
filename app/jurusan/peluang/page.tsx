@@ -1,6 +1,11 @@
 import supabase from '@/lib/supabase'
 
-export default async function PeluangJurusanPage() {
+export default async function PeluangJurusanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ jurusan?: string }>
+}) {
+  const params = await searchParams
   const { data } = await supabase.from('university_programs').select('field_category')
   const categories = Array.from(new Set(data?.map((d) => d.field_category) ?? []))
 
@@ -22,9 +27,10 @@ export default async function PeluangJurusanPage() {
             id="jurusan"
             name="jurusan"
             required
+            defaultValue={params.jurusan || ''}
             className="w-full cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-3 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
           >
-            <option value="__all__">Semua Jurusan</option>
+            <option value="">-- Pilih Jurusan --</option>
             {categories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}

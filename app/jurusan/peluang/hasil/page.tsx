@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import supabase from '@/lib/supabase'
+import StrategiPilihan from '@/components/StrategiPilihan'
 
 interface UniversityProgram {
   id: number
@@ -76,6 +77,8 @@ export default async function PeluangHasilPage({
         Peluang Kamu di {jurusan === ALL_JURUSAN ? 'Semua Jurusan' : `Jurusan ${jurusan}`}
       </h1>
       <p className="mt-1 font-body-md text-body-md text-on-surface-variant">Skor kamu: {nilai}</p>
+
+      <StrategiPilihan items={ranked} />
 
       <ul className="mt-6 space-y-4">
         {paged.map((prog) => {

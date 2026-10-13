@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import Image from 'next/image'
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -9,16 +10,17 @@ export default function Header() {
   const navItems = [
     { href: '/', label: 'Beranda' },
     { href: '/beasiswa', label: 'Beasiswa' },
-    { href: '/zonasi', label: 'Zonasi PPDB' },
+    { href: '/zonasi', label: 'Simulasi SPMB' },
     { href: '/jurusan', label: 'Tes Jurusan' },
     { href: '/jurusan/peluang', label: 'Kalkulator Peluang' },
+    { href: '/jalur', label: 'Jalur Kuliah' }
   ]
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-surface/70 backdrop-blur-xl border-b border-outline-variant/40 shadow-sm">
       <div className="h-16 md:h-20 max-w-7xl mx-auto px-4 md:px-6 lg:px-12 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
-          <img src="/logo.svg" alt="" className="h-8 w-8 rounded-lg" />
+          <Image src="/logo.svg" alt="Logo Kompas Pendidikan" width={1} height={1} className="h-8 w-8 rounded-lg" />
           <span className="font-headline-sm text-headline-sm text-primary tracking-tight">
             Kompas Pendidikan
           </span>

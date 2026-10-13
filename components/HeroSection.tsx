@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-const rotatingWords = ['Beasiswa', 'Zonasi PPDB', 'Jurusan Kuliah', 'Peluang Masuk Kampus']
+const rotatingWords = ['Beasiswa', 'Jalur SPMB', 'Jurusan Kuliah', 'Peluang Masuk Kampus']
 
 export default function HeroSection() {
   const [wordIndex, setWordIndex] = useState(0)
@@ -61,7 +61,7 @@ export default function HeroSection() {
         </p>
 
         <p className="mt-4 font-body-md text-body-md text-on-surface-variant md:font-body-lg md:text-body-lg">
-          Navigasi lengkap untuk menemukan beasiswa, simulasi zonasi PPDB, hingga kalkulator peluang lolos jurusan impianmu.
+          Navigasi lengkap untuk menemukan beasiswa, simulasi SPMB, hingga kalkulator peluang lolos jurusan impianmu.
         </p>
 
         <div className="mt-8 flex justify-center">

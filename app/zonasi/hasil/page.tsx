@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import supabase from '@/lib/supabase'
 import { calculateDistance } from '@/lib/distance'
+import { JALUR_SPMB, getAreaTokens, getDomisiliStatus, type Jenjang } from '@/lib/spmb'
 import ZonasiSortForm from '@/components/ZonasiSortForm'
 
 interface School {
@@ -14,13 +15,6 @@ interface School {
 }
 
 const PAGE_SIZE = 10
-
-function getPeluang(distance: number): { label: string; bg: string; text: string } {
-  if (distance <= 1) return { label: 'Sangat Tinggi', bg: 'bg-tertiary-fixed', text: 'text-on-tertiary-fixed' }
-  if (distance <= 3) return { label: 'Tinggi', bg: 'bg-tertiary-fixed', text: 'text-on-tertiary-fixed' }
-  if (distance <= 5) return { label: 'Sedang', bg: 'bg-secondary-fixed', text: 'text-on-secondary-fixed' }
-  return { label: 'Rendah', bg: 'bg-error-container', text: 'text-on-error-container' }
-}
 
 function buildPageUrl(base: Record<string, string>, page: number) {
   const usp = new URLSearchParams({ ...base, page: String(page) })
@@ -37,13 +31,13 @@ export default async function ZonasiHasilPage({
   const lon = Number(params.lon)
   const alamat = params.alamat || ''
   const jenjang = params.jenjang || ''
-  const sort = params.sort || 'jarak-asc'
+  const sort = params.sort || 'rayon'
   const page = Math.max(1, Number(params.page) || 1)
 
   if (!params.lat || !params.lon || isNaN(lat) || isNaN(lon) || !jenjang) {
     return (
       <section className="mx-auto max-w-2xl px-4 py-10 md:px-6 md:py-14">
-        <p className="font-body-md text-body-md text-on-surface-variant">Lokasi belum dipilih.</p>
+        <p className="font-body-md text-body-md text-on-surface-variant">Lokasi atau jenjang belum dipilih.</p>
         <Link href="/zonasi" className="mt-4 inline-block cursor-pointer font-label-lg text-label-lg text-primary hover:underline">
           ← Pilih lokasi
         </Link>
@@ -52,35 +46,45 @@ export default async function ZonasiHasilPage({
   }
 
   const { data: schools, error } = await supabase
-  .from('schools')
-  .select('*')
-  .eq('level', jenjang)
-  .returns<School[]>()
+    .from('schools')
+    .select('*')
+    .eq('level', jenjang)
+    .returns<School[]>()
 
   if (error) {
     return <p className="p-6 text-error">Error: {error.message}</p>
   }
 
+  const userTokens = getAreaTokens(alamat)
+
   const withDistance =
-    schools?.map((school) => ({
+      schools?.map((school) => {
+    const schoolTokens = getAreaTokens(school.address)
+    return {
       ...school,
       distance: calculateDistance(lat, lon, school.latitude, school.longitude),
-    })) ?? []
+      inRayon: [...userTokens].some((t) => schoolTokens.has(t)),
+      status: getDomisiliStatus(userTokens, schoolTokens),
+    }
+  }) ?? []
 
-  const sorters: Record<string, (a: (typeof withDistance)[number], b: (typeof withDistance)[number]) => number> = {
+  type Row = (typeof withDistance)[number]
+
+  const sorters: Record<string, (a: Row, b: Row) => number> = {
+    rayon: (a, b) => Number(b.inRayon) - Number(a.inRayon) || a.distance - b.distance,
     'jarak-asc': (a, b) => a.distance - b.distance,
     'jarak-desc': (a, b) => b.distance - a.distance,
     'kuota-desc': (a, b) => b.zoning_quota - a.zoning_quota,
     'kuota-asc': (a, b) => a.zoning_quota - b.zoning_quota,
   }
 
-  const ranked = [...withDistance].sort(sorters[sort] ?? sorters['jarak-asc'])
+  const ranked = [...withDistance].sort(sorters[sort] ?? sorters['rayon'])
 
   const totalPages = Math.max(1, Math.ceil(ranked.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const paged = ranked.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
-  const baseParams = { lat: params.lat!, lon: params.lon!, alamat, jenjang, sort }
+  const baseParams = { lat: params.lat, lon: params.lon, alamat, jenjang, sort }
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-10 md:px-6 md:py-14">
@@ -93,34 +97,33 @@ export default async function ZonasiHasilPage({
       </Link>
 
       <h1 className="mt-4 font-headline-sm text-headline-sm text-on-surface md:font-headline-md md:text-headline-md">
-        Hasil Simulasi Zonasi
+        Hasil Simulasi SPMB (Jalur Domisili)
       </h1>
       <p className="mt-1 font-body-md text-body-md text-on-surface-variant">
         Jenjang: {jenjang} · Lokasi: {alamat}
       </p>
 
-      <ZonasiSortForm lat={params.lat!} lon={params.lon!} alamat={alamat} jenjang={jenjang} sort={sort} />
+      <ZonasiSortForm lat={params.lat} lon={params.lon} alamat={alamat} jenjang={jenjang} sort={sort} />
 
       <ul className="mt-6 space-y-4">
-        {paged.map((school) => {
-          const peluang = getPeluang(school.distance)
-          return (
-            <li
-              key={school.id}
-              className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-shadow duration-200 hover:shadow-md"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <h2 className="font-title-md text-title-md text-on-surface">{school.name}</h2>
-                <span className={`shrink-0 rounded-full ${peluang.bg} ${peluang.text} px-3 py-1 font-label-sm text-label-sm font-bold uppercase tracking-wide`}>
-                  {peluang.label}
-                </span>
-              </div>
-              <p className="mt-2 font-body-sm text-body-sm text-on-surface-variant">
-                Jarak: {school.distance.toFixed(2)} km · Kuota zonasi: {school.zoning_quota}
-              </p>
-            </li>
-          )
-        })}
+        {paged.map((school) => (
+          <li
+            key={school.id}
+            className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5 shadow-sm transition-shadow duration-200 hover:shadow-md"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-title-md text-title-md text-on-surface">{school.name}</h2>
+              <span
+                className={`shrink-0 rounded-full ${school.status.bg} ${school.status.text} px-3 py-1 font-label-sm text-label-sm font-bold uppercase tracking-wide`}
+              >
+                {school.status.label}
+              </span>
+            </div>
+            <p className="mt-2 font-body-sm text-body-sm text-on-surface-variant">
+              Jarak: {school.distance.toFixed(2)} km · Kuota domisili (estimasi): {school.zoning_quota}
+            </p>
+          </li>
+        ))}
       </ul>
 
       {totalPages > 1 && (
@@ -146,6 +149,33 @@ export default async function ZonasiHasilPage({
           )}
         </nav>
       )}
+
+      <section aria-labelledby="jalur-heading" className="mt-12">
+        <h2 id="jalur-heading" className="font-headline-sm text-headline-sm text-on-surface">
+          Empat Jalur SPMB
+        </h2>
+        <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+          Domisili hanya salah satu jalur. Kuota di bawah adalah batas minimal/maksimal nasional untuk {jenjang}.
+        </p>
+        <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          {JALUR_SPMB.map((jalur) => (
+            <li key={jalur.id} className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-title-md text-title-md text-on-surface">{jalur.name}</h3>
+                <span className="rounded-full bg-primary-fixed px-2.5 py-1 font-label-sm text-label-sm font-bold text-on-primary-fixed">
+                  {jalur.quota[jenjang as Jenjang] ?? 'Mengikuti juknis daerah'}
+                </span>
+              </div>
+              <p className="mt-2 font-body-sm text-body-sm text-on-surface-variant">{jalur.who}</p>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-4 rounded-xl bg-surface-container-low p-4 font-body-sm text-body-sm text-on-surface-variant">
+          Ini simulasi estimasi. Status rayon dibaca dari kecamatan alamatmu dan kecamatan sekolah, sedangkan
+          penentuan rayon dan kuota resmi mengikuti juknis pemerintah daerah. Cek informasi resmi sebelum mendaftar.
+        </p>
+      </section>
     </section>
   )
 }
