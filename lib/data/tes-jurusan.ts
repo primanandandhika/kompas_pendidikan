@@ -4,6 +4,7 @@ export interface MinatCategory {
   icon: string
   description: string
   questions: string[]
+  strengthQuestion: string
 }
 
 export const MINAT_CATEGORIES: MinatCategory[] = [
@@ -17,6 +18,7 @@ export const MINAT_CATEGORIES: MinatCategory[] = [
       'Saya penasaran mencari pola atau alasan di balik suatu kejadian.',
       'Saat menghadapi masalah, saya suka membandingkan beberapa cara untuk menyelesaikannya.',
     ],
+    strengthQuestion: 'Dari pengalaman belajar atau kegiatan, saya cukup yakin bisa mengurai informasi dan menyelesaikan tugas langkah demi langkah.',
   },
   {
     value: 'coding',
@@ -28,6 +30,7 @@ export const MINAT_CATEGORIES: MinatCategory[] = [
       'Saya menikmati mencoba fitur atau alat digital untuk melihat apa yang bisa dibuat.',
       'Saya tertarik membuat sesuatu yang bisa digunakan orang melalui teknologi.',
     ],
+    strengthQuestion: 'Saya cukup yakin bisa mempelajari alat digital baru dan menggunakannya untuk menyelesaikan tugas.',
   },
   {
     value: 'menggambar',
@@ -39,6 +42,7 @@ export const MINAT_CATEGORIES: MinatCategory[] = [
       'Saya memperhatikan perpaduan warna, kerapian, dan tata letak di sekitar saya.',
       'Saya suka membuat atau mengubah tampilan agar lebih jelas dan menarik.',
     ],
+    strengthQuestion: 'Dari pengalaman belajar atau kegiatan, saya cukup yakin bisa menyusun informasi agar mudah dipahami secara visual.',
   },
   {
     value: 'kreatif',
@@ -50,6 +54,7 @@ export const MINAT_CATEGORIES: MinatCategory[] = [
       'Saya menikmati mengembangkan ide menjadi karya, cerita, atau kegiatan nyata.',
       'Saya senang bereksperimen dan memperbaiki ide berdasarkan hasilnya.',
     ],
+    strengthQuestion: 'Saat menghadapi tugas terbuka, saya cukup yakin bisa mengembangkan beberapa ide untuk dicoba.',
   },
 ]
 
@@ -59,4 +64,12 @@ export const MINAT_SCALE = [
   { value: 3, label: 'Kadang menggambarkan saya' },
   { value: 4, label: 'Cukup menggambarkan saya' },
   { value: 5, label: 'Sangat menggambarkan saya' },
+] as const
+
+export const STRENGTH_SCALE = [
+  { value: 1, label: 'Belum yakin' },
+  { value: 2, label: 'Kurang yakin' },
+  { value: 3, label: 'Cukup yakin' },
+  { value: 4, label: 'Yakin' },
+  { value: 5, label: 'Sangat yakin' },
 ] as const

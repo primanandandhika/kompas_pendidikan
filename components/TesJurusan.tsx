@@ -1,31 +1,35 @@
 'use client'
 
 import { useState } from 'react'
-import { MINAT_CATEGORIES, MINAT_SCALE } from '@/lib/data/tes-jurusan'
+import { MINAT_CATEGORIES, MINAT_SCALE, STRENGTH_SCALE } from '@/lib/data/tes-jurusan'
 
 export default function TesJurusan() {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const category = MINAT_CATEGORIES[step]
   const questionOffset = step * category.questions.length
+  const strengthAnswerIndex = 12 + step
   const completedInStep = category.questions.every((_, index) => answers[questionOffset + index] !== undefined)
+    && answers[strengthAnswerIndex] !== undefined
   const completedQuestions = Object.keys(answers).length
-  const progress = Math.round((completedQuestions / 12) * 100)
+  const progress = Math.round((completedQuestions / 16) * 100)
   const scoreString = MINAT_CATEGORIES.map((item, categoryIndex) => {
     const start = categoryIndex * item.questions.length
     return item.questions.reduce((total, _, index) => total + (answers[start + index] ?? 0), 0)
   }).join(',')
+  const strengthString = MINAT_CATEGORIES.map((_, categoryIndex) => answers[12 + categoryIndex] ?? 0).join(',')
 
   return (
     <form action="/jurusan/hasil" method="get" className="mt-8">
       <input type="hidden" name="scores" value={scoreString} />
+      <input type="hidden" name="strengths" value={strengthString} />
 
       <div className="mb-5" aria-live="polite">
         <div className="flex items-center justify-between gap-3">
           <p className="font-label-lg text-label-lg text-on-surface">
             Bagian {step + 1} dari {MINAT_CATEGORIES.length}
           </p>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">{completedQuestions} dari 12 terjawab</p>
+          <p className="font-body-sm text-body-sm text-on-surface-variant">{completedQuestions} dari 16 terjawab</p>
         </div>
         <div
           role="progressbar"
@@ -87,6 +91,35 @@ export default function TesJurusan() {
               </fieldset>
             )
           })}
+          <fieldset className="border-t border-outline-variant pt-5">
+            <legend className="font-label-md text-label-md text-primary">Kekuatan yang dirasakan</legend>
+            <p className="mt-1 font-body-md text-body-md text-on-surface">{category.strengthQuestion}</p>
+            <div className="mt-3 grid grid-cols-5 gap-2">
+              {STRENGTH_SCALE.map((option) => {
+                const checked = answers[strengthAnswerIndex] === option.value
+                return (
+                  <label key={option.value} className="cursor-pointer text-center">
+                    <input
+                      className="peer sr-only"
+                      type="radio"
+                      name={`q${strengthAnswerIndex}`}
+                      value={option.value}
+                      aria-label={`${option.value}: ${option.label}`}
+                      checked={checked}
+                      onChange={() => setAnswers((current) => ({ ...current, [strengthAnswerIndex]: option.value }))}
+                    />
+                    <span className="flex min-h-11 items-center justify-center rounded-xl border border-outline-variant bg-surface-container-lowest font-label-lg text-label-lg text-on-surface transition-colors hover:border-primary peer-checked:border-primary peer-checked:bg-primary peer-checked:text-on-primary peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary">
+                      {option.value}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+            <div className="mt-1 flex justify-between gap-2 font-label-sm text-label-sm text-on-surface-variant">
+              <span>{STRENGTH_SCALE[0].label}</span>
+              <span>{STRENGTH_SCALE[STRENGTH_SCALE.length - 1].label}</span>
+            </div>
+          </fieldset>
         </div>
       </section>
 
@@ -115,7 +148,7 @@ export default function TesJurusan() {
         ) : (
           <button
             type="submit"
-            disabled={!completedInStep || completedQuestions !== 12}
+            disabled={!completedInStep || completedQuestions !== 16}
             className="ml-auto inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-5 py-3 font-label-lg text-label-lg text-on-primary shadow-sm transition-colors hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-50"
           >
             Lihat hasil minat

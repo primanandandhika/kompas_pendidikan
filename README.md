@@ -21,7 +21,7 @@ Siswa kelas akhir sering kesulitan menentukan jurusan, memilih jalur pendidikan,
 
 | Kebutuhan pada subtema | Fitur di Kompas Pendidikan |
 |---|---|
-| Menentukan jurusan sesuai minat | Cocok Jurusan Apa (kuisioner minat, persentase kecocokan) |
+| Mengeksplorasi jurusan sesuai minat dan refleksi kekuatan diri | Kuis eksplorasi minat dan kekuatan yang dirasakan, dengan rekomendasi jurusan berdasarkan tag minat katalog |
 | Memilih jalur pendidikan | Jalur Masuk Kuliah (SNBP, SNBT, Mandiri) |
 | Merencanakan karier | Prospek karier dan skill per jurusan |
 | Menyesuaikan dengan kemampuan | Kalkulator Peluang SNBT + Strategi 3 Pilihan |
@@ -31,7 +31,7 @@ Siswa kelas akhir sering kesulitan menentukan jurusan, memilih jalur pendidikan,
 
 | Fitur | Halaman | Deskripsi |
 |---|---|---|
-| Tes Minat Jurusan | `/jurusan` | Jawab 12 pernyataan dengan skala 1–5 dalam kuis bertahap. Hasil merangkum empat kelompok minat dan menyarankan jurusan katalog yang terkait, beserta alasan, karier, dan skill. Ini alat eksplorasi awal, bukan asesmen psikologi atau ukuran bakat. |
+| Eksplorasi Jurusan | `/jurusan` | Jawab 16 pernyataan skala 1–5: 12 tentang aktivitas yang diminati dan 4 refleksi kekuatan yang dirasakan. Hasil merangkum empat kelompok minat; rekomendasi jurusan katalog diurutkan berdasarkan tag minat dan dilengkapi karier serta skill. Refleksi kekuatan adalah penilaian diri, bukan asesmen kemampuan atau psikologi. |
 | Jalur Masuk Kuliah | `/jalur` | Perbandingan SNBP, SNBT, dan Mandiri: dasar seleksi, syarat, dan aturan penting. |
 | Kalkulator Peluang | `/jurusan/peluang` | Bandingkan perkiraan skor UTBK dengan skor minimum historis per kampus dan program studi, lengkap dengan Strategi 3 Pilihan (ambisius, realistis, aman). |
 | Cek Beasiswa | `/beasiswa` | Cari, saring berdasarkan jenjang, dan urutkan daftar beasiswa; tiap beasiswa punya halaman detail dan tautan pendaftaran. |
@@ -56,7 +56,7 @@ Ambang ±30 adalah aturan sederhana dari tim, bukan standar resmi. **Strategi 3 
 
 **Status rayon SPMB.** Dicocokkan dari kesamaan nama wilayah (desa/kelurahan/kecamatan) pada alamat pengguna dan alamat sekolah. Label *Kemungkinan dalam rayon* atau *Kemungkinan luar rayon* hanyalah indikasi. Penetapan rayon resmi mengikuti keputusan pemerintah daerah. Jarak ditampilkan sebagai informasi tambahan, bukan penentu.
 
-**Tes minat jurusan.** Skor profil adalah rata-rata jawaban 1–5 pada tiga pernyataan per kelompok minat. Urutan jurusan memakai rata-rata skor kelompok yang ditandai terkait pada data jurusan. Ini hanya membantu eksplorasi, bukan asesmen psikologi, ukuran bakat, atau prediksi keberhasilan kuliah.
+**Eksplorasi jurusan.** Skor minat adalah rata-rata jawaban 1–5 pada tiga pernyataan per kelompok. Satu refleksi tambahan per kelompok mencatat kekuatan yang dirasakan siswa berdasarkan pengalaman mereka sendiri. Urutan jurusan memakai skor minat pada topik yang ditandai terkait pada data jurusan; penilaian kekuatan tidak dipakai sebagai ukuran kemampuan objektif. Ini alat eksplorasi, bukan asesmen psikologi, ukuran bakat, atau prediksi keberhasilan kuliah.
 
 ## Sumber data dan status
 
@@ -91,7 +91,7 @@ Sumber kebijakan di bawah ini adalah sumber primer pemerintah. Sumber tersebut m
 
 Persona: siswa kelas 12 di Purworejo yang suka ngoding, belum yakin jurusan, dan belum tahu jalur mana yang cocok.
 
-1. **Tes Minat Jurusan** (`/jurusan`): jawab 12 pernyataan, lihat pola minat dan rekomendasi jurusan beserta alasan, prospek karier, dan skill.
+1. **Eksplorasi Jurusan** (`/jurusan`): jawab 16 pernyataan untuk melihat pola minat, refleksi kekuatan diri, dan rekomendasi jurusan beserta prospek karier dan skill.
 2. **Jalur Masuk Kuliah** (`/jalur`): pahami perbedaan SNBP, SNBT, dan Mandiri.
 3. **Kalkulator Peluang** (`/jurusan/peluang`): pilih jurusan, masukkan perkiraan skor UTBK, lihat Strategi 3 Pilihan.
 4. **Cek Beasiswa** (`/beasiswa`): cari beasiswa untuk jenjang Kuliah.

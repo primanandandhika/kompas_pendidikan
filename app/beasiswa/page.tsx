@@ -10,30 +10,78 @@ interface Scholarship {
   education_level: string
 }
 
+interface BeasiswaSearchParams {
+  jenjang?: string | string[]
+  q?: string | string[]
+  sort?: string | string[]
+  page?: string | string[]
+}
+
+const PAGE_SIZE = 8
+
+function getSingleParam(value: string | string[] | undefined): string | undefined {
+  return typeof value === 'string' ? value : undefined
+}
+
+function buildPageHref(page: number, params: { jenjang?: string; q?: string; sort: 'asc' | 'desc' }): string {
+  const searchParams = new URLSearchParams()
+  if (params.q) searchParams.set('q', params.q)
+  if (params.jenjang) searchParams.set('jenjang', params.jenjang)
+  if (params.sort !== 'asc') searchParams.set('sort', params.sort)
+  searchParams.set('page', String(page))
+  return `/beasiswa?${searchParams.toString()}`
+}
+
 export default async function BeasiswaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ jenjang?: string; q?: string; sort?: string }>
+  searchParams: Promise<BeasiswaSearchParams>
 }) {
   const params = await searchParams
-  const sort = params.sort === 'desc' ? 'desc' : 'asc'
+  const rawJenjang = getSingleParam(params.jenjang)
+  const jenjang = rawJenjang === 'SMA' || rawJenjang === 'Kuliah' ? rawJenjang : undefined
+  const q = getSingleParam(params.q)?.trim() || undefined
+  const sort = getSingleParam(params.sort) === 'desc' ? 'desc' : 'asc'
+  const rawPage = Number(getSingleParam(params.page) ?? '1')
+  const requestedPage = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1
 
-  let query = supabase.from('scholarships').select('*')
+  function createQuery() {
+    let query = supabase.from('scholarships').select('*', { count: 'exact' })
 
-  if (params.jenjang) {
-    query = query.eq('education_level', params.jenjang)
+    if (jenjang) {
+      query = query.eq('education_level', jenjang)
+    }
+
+    if (q) {
+      query = query.ilike('name', `%${q}%`)
+    }
+
+    return query.order('name', { ascending: sort === 'asc' })
   }
 
-  if (params.q) {
-    query = query.ilike('name', `%${params.q}%`)
+  let currentPage = requestedPage
+  const initialResult = await createQuery()
+    .range((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE - 1)
+    .returns<Scholarship[]>()
+
+  if (initialResult.error) {
+    return <p className="p-6 text-error">Error: {initialResult.error.message}</p>
   }
 
-  query = query.order('name', { ascending: sort === 'asc' })
+  let scholarships = initialResult.data
+  const totalItems = initialResult.count ?? 0
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE)
+  if (totalPages > 0 && currentPage > totalPages) {
+    currentPage = totalPages
+    const result = await createQuery()
+      .range((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE - 1)
+      .returns<Scholarship[]>()
 
-  const { data: scholarships, error } = await query.returns<Scholarship[]>()
+    if (result.error) {
+      return <p className="p-6 text-error">Error: {result.error.message}</p>
+    }
 
-  if (error) {
-    return <p className="p-6 text-error">Error: {error.message}</p>
+    scholarships = result.data
   }
 
   const jenjangOptions = [
@@ -51,7 +99,7 @@ export default async function BeasiswaPage({
         Cari beasiswa yang sesuai jenjang pendidikanmu.
       </p>
 
-      <form className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
+      <form method="get" className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
         <label htmlFor="q" className="sr-only">
           Cari beasiswa
         </label>
@@ -59,7 +107,7 @@ export default async function BeasiswaPage({
           id="q"
           type="text"
           name="q"
-          defaultValue={params.q || ''}
+          defaultValue={q || ''}
           placeholder="Cari nama beasiswa..."
           className="flex-1 rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
         />
@@ -70,7 +118,7 @@ export default async function BeasiswaPage({
         <select
           id="jenjang"
           name="jenjang"
-          defaultValue={params.jenjang || ''}
+          defaultValue={jenjang || ''}
           className="cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest px-4 py-2.5 font-body-md text-body-md text-on-surface transition-colors focus:border-primary focus:outline-none"
         >
           {jenjangOptions.map((opt) => (
@@ -101,6 +149,12 @@ export default async function BeasiswaPage({
         </button>
       </form>
 
+      {totalItems > 0 && (
+        <p className="mt-5 font-body-sm text-body-sm text-on-surface-variant" aria-live="polite">
+          Menampilkan {Math.min((currentPage - 1) * PAGE_SIZE + 1, totalItems)}–{Math.min(currentPage * PAGE_SIZE, totalItems)} dari {totalItems} beasiswa
+        </p>
+      )}
+
       <ul className="mt-8 space-y-4">
         {scholarships?.map((item) => (
           <li key={item.id}>
@@ -122,6 +176,30 @@ export default async function BeasiswaPage({
         <p className="mt-8 font-body-md text-body-md text-on-surface-variant">
           Tidak ada beasiswa yang cocok dengan pencarianmu.
         </p>
+      )}
+
+      {totalPages > 1 && (
+        <nav aria-label="Navigasi halaman beasiswa" className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          {currentPage > 1 && (
+            <Link
+              href={buildPageHref(currentPage - 1, { jenjang, q, sort })}
+              className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:border-primary hover:text-primary"
+            >
+              ← Sebelumnya
+            </Link>
+          )}
+          <span className="font-body-sm text-body-sm text-on-surface-variant" aria-current="page">
+            Halaman {currentPage} dari {totalPages}
+          </span>
+          {currentPage < totalPages && (
+            <Link
+              href={buildPageHref(currentPage + 1, { jenjang, q, sort })}
+              className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:border-primary hover:text-primary"
+            >
+              Selanjutnya →
+            </Link>
+          )}
+        </nav>
       )}
     </section>
   )

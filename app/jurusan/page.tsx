@@ -11,16 +11,17 @@ export default function JurusanPage() {
         Kenali minatmu, temukan jurusan untuk dieksplorasi
       </h1>
       <p className="mt-2 max-w-2xl font-body-md text-body-md text-on-surface-variant">
-        Jawab 12 pernyataan singkat tentang aktivitas yang kamu nikmati. Hasilnya menunjukkan pola minat yang
-        terkait dengan jurusan di katalog kami.
+        Jawab 16 pernyataan tentang aktivitas yang kamu minati dan kekuatan yang kamu rasakan. Hasilnya membantu
+        kamu mengeksplorasi jurusan, lalu menelusuri jalur kuliah dan karier yang terkait.
       </p>
 
       <div className="mt-5 rounded-2xl border border-outline-variant bg-surface-container-low p-4">
         <p className="font-label-lg text-label-lg text-on-surface">Sebelum mulai</p>
         <ul className="mt-2 list-inside list-disc space-y-1 font-body-sm text-body-sm text-on-surface-variant">
           <li>Tidak ada jawaban benar atau salah. Pilih sesuai dirimu, bukan ekspektasi orang lain.</li>
+          <li>Bagian kekuatan adalah penilaian dirimu sendiri, bukan tes kemampuan akademik atau tes bakat.</li>
           <li>Jawabanmu tidak disimpan ke database; hasil dikirim lewat URL agar bisa dibuka kembali.</li>
-          <li>Ini alat eksplorasi awal, bukan tes psikologi, ukuran bakat, atau penentu pilihan kuliah.</li>
+          <li>Gunakan hasil sebagai bahan diskusi dengan guru BK dan untuk mencoba kegiatan yang kamu minati.</li>
         </ul>
       </div>
 

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import supabase from '@/lib/supabase'
 import ChipList from '@/components/ChipList'
-import { MINAT_CATEGORIES } from '@/lib/data/tes-jurusan'
+import { MINAT_CATEGORIES, STRENGTH_SCALE } from '@/lib/data/tes-jurusan'
 
 interface Major {
   id: number
@@ -31,14 +31,24 @@ function getValidScores(rawScores: string | string[] | undefined): number[] | nu
   return scores
 }
 
+function getValidStrengths(rawStrengths: string | string[] | undefined): number[] | null {
+  if (typeof rawStrengths !== 'string') return null
+  const strengths = rawStrengths.split(',').map(Number)
+  if (strengths.length !== MINAT_CATEGORIES.length) return null
+  if (strengths.some((score) => !Number.isInteger(score) || score < 1 || score > 5)) return null
+  return strengths
+}
+
 export default async function JurusanHasilPage({
   searchParams,
 }: {
-  searchParams: Promise<{ scores?: string | string[]; page?: string | string[] }>
+  searchParams: Promise<{ scores?: string | string[]; strengths?: string | string[]; page?: string | string[] }>
 }) {
   const params = await searchParams
   const rawScores = typeof params.scores === 'string' ? params.scores : undefined
+  const rawStrengths = typeof params.strengths === 'string' ? params.strengths : undefined
   const scores = getValidScores(params.scores)
+  const strengths = getValidStrengths(params.strengths)
 
   if (!scores) {
     return (
@@ -121,21 +131,26 @@ export default async function JurusanHasilPage({
       </Link>
 
       <h1 className="mt-4 font-headline-sm text-headline-sm text-on-surface md:font-headline-lg md:text-headline-lg">
-        Ringkasan minatmu
+        Ringkasan minat dan kekuatan yang kamu rasakan
       </h1>
       <p className="mt-2 font-body-md text-body-md text-on-surface-variant">
-        Profil ini merangkum jawabanmu. Gunakan sebagai bahan eksplorasi dan diskusi, bukan keputusan otomatis.
+        Profil ini membantu memulai eksplorasi jurusan. Nilai kekuatan berasal dari penilaian dirimu sendiri, bukan tes kemampuan, rekomendasi jurusan di bawah diurutkan berdasarkan pola minat.
       </p>
 
       <section aria-labelledby="profile-heading" className="mt-6 rounded-3xl border border-outline-variant bg-surface-container-low p-5 md:p-6">
-        <h2 id="profile-heading" className="font-title-md text-title-md text-on-surface">Pola minat yang muncul</h2>
+        <h2 id="profile-heading" className="font-title-md text-title-md text-on-surface">Pola minat dan refleksi kekuatan</h2>
         <ol className="mt-4 space-y-4">
-          {profile.map((item) => (
+          {profile.map((item, index) => (
             <li key={item.value}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-label-lg text-label-lg text-on-surface">{item.label}</p>
                   <p className="font-body-sm text-body-sm text-on-surface-variant">{item.description}</p>
+                  {strengths && (
+                    <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+                      Kekuatan yang kamu rasakan: {STRENGTH_SCALE[strengths[index] - 1].label} ({strengths[index]} / 5)
+                    </p>
+                  )}
                 </div>
                 <span className="shrink-0 font-label-lg text-label-lg text-primary">{item.average.toFixed(1)} / 5</span>
               </div>
@@ -153,8 +168,16 @@ export default async function JurusanHasilPage({
           ))}
         </ol>
         <p className="mt-5 border-t border-outline-variant pt-4 font-body-sm text-body-sm text-on-surface-variant">
-          Skor adalah rata-rata jawabanmu pada skala 1–5 untuk tiap kelompok pernyataan, bukan nilai bakat atau peluang sukses.
+          Skor minat adalah rata-rata jawabanmu pada pernyataan minat. Nilai kekuatan adalah penilaian diri berdasarkan pengalamanmu; keduanya bukan ukuran bakat, nilai akademik, atau prediksi keberhasilan.
         </p>
+        <div className="mt-4 rounded-2xl bg-surface-container-low p-4">
+          <p className="font-label-lg text-label-lg text-on-surface">Cara membaca hasil</p>
+          <ul className="mt-2 list-inside list-disc space-y-1 font-body-sm text-body-sm text-on-surface-variant">
+            <li>Minat dan rasa yakin sama-sama tinggi? Cari mata kuliah dan kegiatan terkait untuk dicoba lebih lanjut.</li>
+            <li>Minat tinggi tetapi belum yakin? Anggap sebagai area untuk dipelajari; rasa mampu bisa tumbuh lewat latihan dan dukungan.</li>
+            <li>Rasa yakin tinggi tetapi minat rendah? Itu tetap kekuatanmu, tetapi kamu tidak harus memilih jurusan hanya karena sudah menguasainya.</li>
+          </ul>
+        </div>
       </section>
 
       <div className="mt-8 flex flex-wrap items-end justify-between gap-2">
@@ -215,7 +238,7 @@ export default async function JurusanHasilPage({
         <nav aria-label="Navigasi halaman rekomendasi jurusan" className="mt-6 flex items-center justify-center gap-3">
           {currentPage > 1 && (
             <Link
-              href={`/jurusan/hasil?scores=${encodeURIComponent(rawScores ?? '')}&page=${currentPage - 1}`}
+            href={`/jurusan/hasil?scores=${encodeURIComponent(rawScores ?? '')}${rawStrengths ? `&strengths=${encodeURIComponent(rawStrengths)}` : ''}&page=${currentPage - 1}`}
               className="cursor-pointer rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:border-primary hover:text-primary"
             >
               ← Sebelumnya
@@ -226,7 +249,7 @@ export default async function JurusanHasilPage({
           </span>
           {currentPage < totalPages && (
             <Link
-              href={`/jurusan/hasil?scores=${encodeURIComponent(rawScores ?? '')}&page=${currentPage + 1}`}
+              href={`/jurusan/hasil?scores=${encodeURIComponent(rawScores ?? '')}${rawStrengths ? `&strengths=${encodeURIComponent(rawStrengths)}` : ''}&page=${currentPage + 1}`}
               className="cursor-pointer rounded-full border border-outline-variant px-4 py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:border-primary hover:text-primary"
             >
               Selanjutnya →
@@ -238,8 +261,12 @@ export default async function JurusanHasilPage({
       <aside className="mt-6 rounded-2xl bg-surface-container-low p-4">
         <p className="font-label-lg text-label-lg text-on-surface">Langkah berikutnya</p>
         <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-          Baca kurikulum di situs kampus, coba proyek atau kegiatan yang terkait, dan diskusikan pilihanmu dengan guru BK atau orang yang kamu percaya.
+          Baca kurikulum dan persyaratan jurusan di situs kampus, coba proyek atau kegiatan terkait, lalu diskusikan pilihanmu dengan guru BK atau orang yang kamu percaya. Bandingkan juga jalur masuk kuliah sebelum menentukan rencana.
         </p>
+        <Link href="/jalur" className="mt-3 inline-flex cursor-pointer items-center gap-1 font-label-lg text-label-lg text-primary transition-colors hover:text-primary-container">
+          Lihat perbandingan jalur masuk kuliah
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_forward</span>
+        </Link>
       </aside>
     </section>
   )
